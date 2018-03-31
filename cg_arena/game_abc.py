@@ -10,15 +10,19 @@ class GameABC(ABC):
         ...
 
     @abstractmethod
+    def current_player(self):
+        ...
+
+    @abstractmethod
+    def is_active(self):
+        ...
+
+    @abstractmethod
     def turn_inputs(self, player):
         ...
 
     @abstractmethod
     def process_output(self, player, action_str):
-        ...
-
-    @abstractmethod
-    def is_active(self):
         ...
 
     @abstractmethod

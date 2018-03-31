@@ -65,68 +65,68 @@ class Match():
         # Create game
         self.game = Game(config_str)
 
-        # TODO: BEGIN Game(config_str)
-        # Specific to Wonder Women
-
-        map_index_str, seed_str = self.config_str.split(';')
-        map_index = int(map_index_str.split('=')[1])
-        seed = int(seed_str.split("=")[1])
-        np.random.seed(seed)
-
-        self.units_per_player = 2
-
-        # grid
-        if map_index == 0:
-            self.size = 5
-            grid = np.zeros((7, 7),dtype=int)
-            grid[5,:] = -1
-            grid[6,:] = -1
-            grid[:,5] = -1
-            grid[:,6] = -1
-        elif map_index == 1:
-            self.size = 7
-            grid = np.array([[-1,-1,-1, 0,-1,-1,-1,-1,-1],
-                             [-1,-1, 0, 0, 0,-1,-1,-1,-1],
-                             [-1, 0, 0, 0, 0, 0,-1,-1,-1],
-                             [ 0, 0, 0, 0, 0, 0, 0,-1,-1],
-                             [-1, 0, 0, 0, 0, 0,-1,-1,-1],
-                             [-1,-1, 0, 0, 0,-1,-1,-1,-1],
-                             [-1,-1,-1, 0,-1,-1,-1,-1,-1],
-                             [-1,-1,-1,-1,-1,-1,-1,-1,-1],
-                             [-1,-1,-1,-1,-1,-1,-1,-1,-1]],dtype=int)
-        elif map_index == 2:
-            self.size = 6
-            grid = np.zeros((8, 8),dtype=int)
-            grid[6,:] = -1
-            grid[7,:] = -1
-            grid[:,6] = -1
-            grid[:,7] = -1
-            # remove one element
-            x = np.random.randint(3)
-            y = np.random.randint(6)
-            grid[x,y] = -1
-            grid[6-x-1,y] = -1
-            # flip remining bits with one percent probability
-            prob = np.random.randint(0, 70, size=(8,8))
-            remove = (prob == 0) | (prob[[5,4,3,2,1,0,7,6],:] == 0)
-            grid[remove] = -1
-
-        # player locations
-        x, y = np.indices(grid.shape)
-        x = x[grid == 0]
-        y = y[grid == 0]
-        indx = np.random.choice(np.arange(x.size), 4, replace=False)
-        player_units = list(zip(x[indx], y[indx]))
-
+        # # TODO: BEGIN Game(config_str)
+        # # Specific to Wonder Women
         #
-        # Information which changes each turn specific the the game
+        # map_index_str, seed_str = self.config_str.split(';')
+        # map_index = int(map_index_str.split('=')[1])
+        # seed = int(seed_str.split("=")[1])
+        # np.random.seed(seed)
         #
-
-        # Specific to Wonder Women
-
-        self.board_state = BoardState(grid, player_units[:2], player_units[2:], my_score=0, op_score=0, turn=0, active_players=[True, True])
-
-        # TODO: END Game(config_str)
+        # self.units_per_player = 2
+        #
+        # # grid
+        # if map_index == 0:
+        #     self.size = 5
+        #     grid = np.zeros((7, 7),dtype=int)
+        #     grid[5,:] = -1
+        #     grid[6,:] = -1
+        #     grid[:,5] = -1
+        #     grid[:,6] = -1
+        # elif map_index == 1:
+        #     self.size = 7
+        #     grid = np.array([[-1,-1,-1, 0,-1,-1,-1,-1,-1],
+        #                      [-1,-1, 0, 0, 0,-1,-1,-1,-1],
+        #                      [-1, 0, 0, 0, 0, 0,-1,-1,-1],
+        #                      [ 0, 0, 0, 0, 0, 0, 0,-1,-1],
+        #                      [-1, 0, 0, 0, 0, 0,-1,-1,-1],
+        #                      [-1,-1, 0, 0, 0,-1,-1,-1,-1],
+        #                      [-1,-1,-1, 0,-1,-1,-1,-1,-1],
+        #                      [-1,-1,-1,-1,-1,-1,-1,-1,-1],
+        #                      [-1,-1,-1,-1,-1,-1,-1,-1,-1]],dtype=int)
+        # elif map_index == 2:
+        #     self.size = 6
+        #     grid = np.zeros((8, 8),dtype=int)
+        #     grid[6,:] = -1
+        #     grid[7,:] = -1
+        #     grid[:,6] = -1
+        #     grid[:,7] = -1
+        #     # remove one element
+        #     x = np.random.randint(3)
+        #     y = np.random.randint(6)
+        #     grid[x,y] = -1
+        #     grid[6-x-1,y] = -1
+        #     # flip remining bits with one percent probability
+        #     prob = np.random.randint(0, 70, size=(8,8))
+        #     remove = (prob == 0) | (prob[[5,4,3,2,1,0,7,6],:] == 0)
+        #     grid[remove] = -1
+        #
+        # # player locations
+        # x, y = np.indices(grid.shape)
+        # x = x[grid == 0]
+        # y = y[grid == 0]
+        # indx = np.random.choice(np.arange(x.size), 4, replace=False)
+        # player_units = list(zip(x[indx], y[indx]))
+        #
+        # #
+        # # Information which changes each turn specific the the game
+        # #
+        #
+        # # Specific to Wonder Women
+        #
+        # self.board_state = BoardState(grid, player_units[:2], player_units[2:], my_score=0, op_score=0, turn=0, active_players=[True, True])
+        #
+        # # TODO: END Game(config_str)
         #
         # General information for all games
         #
@@ -143,6 +143,7 @@ class Match():
         self.player_processes[player].kill()
         self.player_processes[player] = None
 
+        # TODO: Record loss order differently
         # Mark player as lost
         self.loss_order.append(player)
 
@@ -156,11 +157,11 @@ class Match():
             for line in self.game.init_inputs(self.current_player):
                 print(line, file=current_player_stdin)
 
-            # TODO: BEGIN Game.init_inputs(player)
-            # Specific to WonderWomen
-            print(self.size, file=current_player_stdin)
-            print(self.units_per_player, file=current_player_stdin)
-            # TODO: END Game.init_inputs(player)
+            # # TODO: BEGIN Game.init_inputs(player)
+            # # Specific to WonderWomen
+            # print(self.size, file=current_player_stdin)
+            # print(self.units_per_player, file=current_player_stdin)
+            # # TODO: END Game.init_inputs(player)
 
             return time.perf_counter(), False # no errors
 
@@ -182,13 +183,13 @@ class Match():
 
     def is_active(self):
         # TODO: get rid of this Match.is_active  Replace with next line
-        self.game.is_active()
+        return self.game.is_active()
 
-        # TODO: START Game.is_active()
-        # Special to Wonder Women
-
-        return any(self.board_state.active_players)
-        # TODO: END Game.is_active()
+        # # TODO: START Game.is_active()
+        # # Special to Wonder Women
+        #
+        # return any(self.board_state.active_players)
+        # # TODO: END Game.is_active()
 
     def send_inputs_to_player(self):
         try:
@@ -197,11 +198,11 @@ class Match():
             for line in self.game.turn_inputs(self.current_player):
                 print(line, file=current_player_stdin)
 
-            # TODO: START Game.turn_inputs(player)
-            # Specific to WonderWomen
-
-            print(self.board_state.turn_input(), file=current_player_stdin)
-            # TODO: END Game.turn_inputs(player)
+            # # TODO: START Game.turn_inputs(player)
+            # # Specific to WonderWomen
+            #
+            # print(self.board_state.turn_input(), file=current_player_stdin)
+            # # TODO: END Game.turn_inputs(player)
 
             return time.perf_counter(), False # no errors
 
@@ -224,34 +225,38 @@ class Match():
         return output_time, stdout_stream, stderr_stream
 
     def validate_player_output(self, stdout_stream):
-        issue_flag = False # used to flag undesired behavior
-        message = ""
-        action_str = None
+        return self.game.validate_output(stdout_stream)
 
-        # Much of this method is specific to Wonder Women
-        if not stdout_stream:
-            message += "did not provide any output. (CRASHED?)"
-            issue_flag = True
-
-        else:
-            raw_move = stdout_stream[0].rstrip()
-            move = raw_move.split()
-            if not move:
-                message += "played " + raw_move + " which is not a valid move."
-                issue_flag = True
-            elif move[0] not in MOVES:
-                message += "played " + raw_move + " which is not a valid move."
-                issue_flag = True
-            elif move[0] == "ACCEPT-DEFEAT":
-                action_str = "ACCEPT-DEFEAT"
-            else:
-                action_str = " ".join(move[:4])
-                if action_str not in [str(a) for a in self.board_state.legal_actions]:
-                    message += "played " + raw_move + " which is not in list of legal moves."
-                    issue_flag = True
-                    action_str = None
-
-        return action_str, message, issue_flag
+        # # TODO: BEGIN
+        # issue_flag = False # used to flag undesired behavior
+        # message = ""
+        # action_str = None
+        #
+        # # Much of this method is specific to Wonder Women
+        # if not stdout_stream:
+        #     message += "did not provide any output. (CRASHED?)"
+        #     issue_flag = True
+        #
+        # else:
+        #     raw_move = stdout_stream[0].rstrip()
+        #     move = raw_move.split()
+        #     if not move:
+        #         message += "played " + raw_move + " which is not a valid move."
+        #         issue_flag = True
+        #     elif move[0] not in MOVES:
+        #         message += "played " + raw_move + " which is not a valid move."
+        #         issue_flag = True
+        #     elif move[0] == "ACCEPT-DEFEAT":
+        #         action_str = "ACCEPT-DEFEAT"
+        #     else:
+        #         action_str = " ".join(move[:4])
+        #         if action_str not in [str(a) for a in self.board_state.legal_actions]:
+        #             message += "played " + raw_move + " which is not in list of legal moves."
+        #             issue_flag = True
+        #             action_str = None
+        #
+        # return action_str, message, issue_flag
+        # TODO: END
 
     def process_players_errors(self, stderr_stream):
         warning_set = set() # A set to avoid duplicates
@@ -263,15 +268,15 @@ class Match():
 
     def process_players_output(self, action_str):
         # TODO: get rid of this method (replace with next line)
-        self.game.process_output(self.current_player, action_str)
+        return self.game.process_output(self.current_player, action_str)
 
-        # TODO: BEGIN Game.process_output(action_str)
-        # This method is specific to Wonder Women
-        self.board_state = self.board_state.next_board_state(action_str)
-        if self.turn == 400:
-            # Deactivate remaining players
-            self.board_state.active_players = [False, False]
-        # TODO: END Game.process_output(action_str)
+        # # TODO: BEGIN Game.process_output(action_str)
+        # # This method is specific to Wonder Women
+        # self.board_state = self.board_state.next_board_state(action_str)
+        # if self.turn == 400:
+        #     # Deactivate remaining players
+        #     self.board_state.active_players = [False, False]
+        # # TODO: END Game.process_output(action_str)
 
     def record_times(self, input_time, output_time):
         player = self.current_player
@@ -339,7 +344,10 @@ class Match():
         #
         # Send inputs and read outputs
         #
-        self.current_player = self.board_state.current_player_id
+        self.current_player = self.game.current_player()
+        # TODO: remove commented out text:
+        #self.current_player = self.board_state.current_player_id
+
         input_time, input_flag = self.send_inputs_to_player()
         output_time, stdout_stream, stderr_stream = self.read_player_streams(timeout = 2, expected_stdout_size = 1)
         moves, message, output_flag = self.validate_player_output(stdout_stream)
@@ -360,15 +368,16 @@ class Match():
             self.print_turn_data(stdout_stream, stderr_stream, message, output_flag, input_time, output_time)
 
     def remaining_players_in_order(self):
-        # TODO: Reimplement
-        # TODO: Create Game.score_game()
-        # This method is specific to Wonder Women
+        # TODO: Eventually remove this, handle ties and deactivated players better
 
         # ties are (not so) rare, so I can worry about that later
-        active_players = [i for i in range(self.number_of_starting_players) if self.player_processes[i]]
-        active_players.sort(key=lambda i: self.board_state.scores[i^self.board_state.current_player_id])
 
-        return active_players
+        # TODO: BEGIN
+        #active_players = [i for i in range(self.number_of_starting_players) if self.player_processes[i]]
+        #active_players.sort(key=lambda i: self.board_state.scores[i^self.board_state.current_player_id])
+        # TODO: END
+
+        return sorted(range(self.number_of_starting_players), key=lambda p: self.game.score_game()[p])
 
     def end_of_game(self):
 
