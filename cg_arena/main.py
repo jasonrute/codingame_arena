@@ -1,4 +1,9 @@
 import sys, getopt
+"""
+The main application.
+"""
+
+
 import io
 import itertools
 
@@ -6,28 +11,43 @@ from tournament import Tournament
 from match import Match
 
 
-################
-# Print helper #
-################
-
 def print_side_by_side(stream0, stream1, col_width=80):
-    for line0, line1 in itertools.zip_longest(stream0.split('\n'), stream1.split('\n')):
-        if line0 == None:
+    """
+    Prints two streams side by side.
+
+    Used to print two games next to each other.  The streams are captured stdout
+    streams.
+
+    :param stream0: STDOUT stream 0
+    :param stream1: STDOUT stream 1
+    :param int col_width: column width
+    """
+    for line0, line1 in itertools.zip_longest(stream0.split('\n'),
+                                              stream1.split('\n')):
+        if line0 is None:
             line0 = ""
-        if line1 == None:
+        if line1 is None:
             line1 = ""
         print("{1:{0}}{2:{0}}".format(col_width, line0.strip(), line1.strip()))
-
 
 
 ########
 # Main #
 ########
 
+
 def main(argv):
     """
-    Arguements: *****_arena.py bot1 [bot2] [bot3] [bot4] [-t] [-v] [-m] [-s <config>] [-2|-3|-4] [-n <number>]'
+    The main function.
+
+    We assume the arguments to the app follow this pattern:
+
+    bot1 [bot2] [bot3] [bot4] [-t] [-v] [-m] [-s <config>] [-2|-3|-4] [-n <number>]
+
+    :param argv: The command line arguments passed to the application as given
+                 by sys.argv
     """
+
     number_of_games = 10 # Defaults to 10
     time_limits = False
     verbose = False
