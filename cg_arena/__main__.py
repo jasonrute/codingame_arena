@@ -4,10 +4,11 @@ See the README for more details on the app.
 """
 
 import sys
-from main import main
+from arena import Arena
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    Arena(sys.argv).run()
+
 
 
 
