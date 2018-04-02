@@ -129,6 +129,8 @@ class Arena:
             self.play_tournament()
 
     def play_single_game(self):
+        """Play a single verbose match."""
+
         try:
             # Initialization
             match = Match(0, self.config_str, self.player_list, self.time_limits, self.verbose, self.show_map)
@@ -151,6 +153,8 @@ class Arena:
                     p.kill()
 
     def play_double_game(self):
+        """Play a verbose two-player match in two columns"""
+
         player_names = list(set(self.player_list))
         reverse_player_list = []
         for p in self.player_list:
@@ -239,6 +243,8 @@ class Arena:
                     p.kill()
 
     def play_tournament(self):
+        """Play a tournament with multiple matches."""
+
         t = Tournament(self.number_of_games, self.player_list, self.game_arity, self.time_limits, self.verbose, self.show_map)
         t.play_all_games()
         t.print_win_data()
