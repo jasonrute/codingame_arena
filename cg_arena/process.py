@@ -48,7 +48,7 @@ class PlayerProcess:
     issues with the streams blocking.
     """
 
-    def __init__(self, program_name, options=[]):
+    def __init__(self, program_name, options):
         p = Popen(['python3', '-u', program_name] + options,  # -u prevents
                                                               # buffering on
                                                               # the child's side
