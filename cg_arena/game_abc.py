@@ -125,13 +125,14 @@ class GameABC(metaclass=ABCMeta):
         ...
 
     @abstractmethod
-    def process_output(self, player, action_str):
+    def process_output(self, player, action_str, deactivated):
         """
         Process that players output, making their move in the game and
         setting up the game state for the next player.
 
         :param int player: player number
         :param str action_str: the (cleaned up) action string from validate_output
+        :param bool deactivated: True if the player was deactived (e.g. from a bad move or a timeout)
         """
         ...
 

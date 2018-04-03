@@ -71,12 +71,13 @@ class Match:
         :return:
         """
         # Close the process and remove from process list
-        self.player_processes[player].kill()
-        self.player_processes[player] = None
+        if self.player_processes[player] is not None:
+            self.player_processes[player].kill()
+            self.player_processes[player] = None
 
         # TODO: Record loss order differently
         # Mark player as lost
-        self.loss_order.append(player)
+        #
 
     def send_init_inputs_to_player(self):
         # To avoid timing issues, I will send the information to each player seperately.
@@ -182,14 +183,15 @@ class Match:
                 warning_set.add((self.turn, line))
         self.warnings[self.current_player].extend(warning_set)
 
-    def process_players_output(self, action_str):
+    def process_players_output(self, action_str, deactivated):
         """
         Process the actions printed by the player.
 
         :param action_str: The stream of actions printed by the player.
+        :param bool deactivated: True if the player was deactivated (e.g. from a bad move or a timeout)
         """
 
-        self.game.process_output(self.current_player, action_str)
+        self.game.process_output(self.current_player, action_str, deactivated)
 
     def record_times(self, input_time, output_time):
         player = self.current_player
@@ -285,11 +287,14 @@ class Match:
             self.issue_logs[self.current_player] = (self.turn, stdout_stream,
                                                     stderr_stream, message,
                                                     input_flag, output_flag)
+            deactivated = True
+        else:
+            deactivated = False
         #
         # Process outputs
         #
         if self.is_active():
-            self.process_players_output(moves)
+            self.process_players_output(moves, deactivated)
 
         if self.verbose:
             self.print_turn_data(stdout_stream, stderr_stream, message, output_flag, input_time, output_time)
@@ -311,6 +316,7 @@ class Match:
         # Kill remaining players
         for i in self.remaining_players_in_order():
             self.kill_player(i)
+            self.loss_order.append(i)
 
         print("--------------------------")
         print("Game", self.id_number, "results:")

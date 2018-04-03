@@ -196,14 +196,17 @@ class Game(GameABC):
 
         return action_str, message, issue_flag
 
-    def process_output(self, player, action_str):
+    def process_output(self, player, action_str, deactivated):
         """
         Process that players output, making their move in the game and
         setting up the game state for the next player.
 
         :param int player: player number
         :param str action_str: the (cleaned up) action string from validate_output
+        :param bool deactivated: True if the player was deactived (e.g. from a bad move or a timeout)
         """
+        if deactivated:
+            action_str = "ACCEPT-DEFEAT"
         self.board_state = self.board_state.next_board_state(action_str)
         self.turn += 1
         if self.turn == 400:
