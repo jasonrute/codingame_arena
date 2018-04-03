@@ -8,10 +8,26 @@ from game_abc import GameABC
 
 
 class Game(GameABC):
-    def __init__(self, config_str):
-        self.config_str = config_str
 
-        map_index_str, seed_str = self.config_str.split(';')
+    MIN_PLAYERS = 2
+    MAX_PLAYERS = 2
+    WARNINGS = {"OUT OF TIME", "OUT_OF_TIME:", "Warning:"}
+
+    @staticmethod
+    def random_configuration(rng):
+        """Find random starting configuration and encode using CG format"""
+
+        # This is specific to Wonder Women
+        map_index = rng.randrange(3)
+        seed = rng.randrange(2**32)
+        config_str = "mapIndex={};seed={}".format(map_index, seed)
+
+        return config_str
+
+    def __init__(self, config_str):
+        self._config_str = config_str
+
+        map_index_str, seed_str = self._config_str.split(';')
         map_index = int(map_index_str.split('=')[1])
         seed = int(seed_str.split("=")[1])
         np.random.seed(seed)

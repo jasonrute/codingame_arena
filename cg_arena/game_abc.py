@@ -13,6 +13,12 @@ class GameABC(metaclass=ABCMeta):
     def MAX_PLAYERS():
         ...
 
+    @property
+    @staticmethod
+    @abstractmethod
+    def WARNINGS():
+        ...
+
     @staticmethod
     @abstractmethod
     def random_configuration(random_generator):

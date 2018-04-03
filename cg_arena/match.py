@@ -2,20 +2,13 @@ import time
 
 from process import PlayerProcess
 from game import Game
-# TODO: Handle these
-
-from game.ww import WARNINGS
 
 
 
 
-##############
-# Game class #
-##############
-
-class Match():
+class Match:
     """
-    Stores the current state of the game.
+    Stores the current state of the match including managing the player processes.
     """
 
     def __init__(self, id_number, config_str, player_program_list, time_limits, verbose, show_map):
@@ -26,7 +19,7 @@ class Match():
         #
         # Counters/Timers
         #
-        self.turn = -1 # Counter will update at beginning of round.
+        self.turn = -1  # Counter will update at beginning of round.
         self.start_time = time.perf_counter()
         self.total_time = time.perf_counter()
 
@@ -62,80 +55,23 @@ class Match():
         # Create game
         self.game = Game(config_str)
 
-        # # TODO: BEGIN Game(config_str)
-        # # Specific to Wonder Women
-        #
-        # map_index_str, seed_str = self.config_str.split(';')
-        # map_index = int(map_index_str.split('=')[1])
-        # seed = int(seed_str.split("=")[1])
-        # np.random.seed(seed)
-        #
-        # self.units_per_player = 2
-        #
-        # # grid
-        # if map_index == 0:
-        #     self.size = 5
-        #     grid = np.zeros((7, 7),dtype=int)
-        #     grid[5,:] = -1
-        #     grid[6,:] = -1
-        #     grid[:,5] = -1
-        #     grid[:,6] = -1
-        # elif map_index == 1:
-        #     self.size = 7
-        #     grid = np.array([[-1,-1,-1, 0,-1,-1,-1,-1,-1],
-        #                      [-1,-1, 0, 0, 0,-1,-1,-1,-1],
-        #                      [-1, 0, 0, 0, 0, 0,-1,-1,-1],
-        #                      [ 0, 0, 0, 0, 0, 0, 0,-1,-1],
-        #                      [-1, 0, 0, 0, 0, 0,-1,-1,-1],
-        #                      [-1,-1, 0, 0, 0,-1,-1,-1,-1],
-        #                      [-1,-1,-1, 0,-1,-1,-1,-1,-1],
-        #                      [-1,-1,-1,-1,-1,-1,-1,-1,-1],
-        #                      [-1,-1,-1,-1,-1,-1,-1,-1,-1]],dtype=int)
-        # elif map_index == 2:
-        #     self.size = 6
-        #     grid = np.zeros((8, 8),dtype=int)
-        #     grid[6,:] = -1
-        #     grid[7,:] = -1
-        #     grid[:,6] = -1
-        #     grid[:,7] = -1
-        #     # remove one element
-        #     x = np.random.randint(3)
-        #     y = np.random.randint(6)
-        #     grid[x,y] = -1
-        #     grid[6-x-1,y] = -1
-        #     # flip remining bits with one percent probability
-        #     prob = np.random.randint(0, 70, size=(8,8))
-        #     remove = (prob == 0) | (prob[[5,4,3,2,1,0,7,6],:] == 0)
-        #     grid[remove] = -1
-        #
-        # # player locations
-        # x, y = np.indices(grid.shape)
-        # x = x[grid == 0]
-        # y = y[grid == 0]
-        # indx = np.random.choice(np.arange(x.size), 4, replace=False)
-        # player_units = list(zip(x[indx], y[indx]))
-        #
-        # #
-        # # Information which changes each turn specific the the game
-        # #
-        #
-        # # Specific to Wonder Women
-        #
-        # self.board_state = BoardState(grid, player_units[:2], player_units[2:], my_score=0, op_score=0, turn=0, active_players=[True, True])
-        #
-        # # TODO: END Game(config_str)
         #
         # General information for all games
         #
         self.current_player = 0
-        self.loss_order = [] # list of players as they lose
-        self.issue_logs = [None for p in player_program_list]
-        self.warnings = [[] for p in player_program_list]
-        self.sum_times = [0 for p in player_program_list]
-        self.max_times = [0 for p in player_program_list]
-        self.player_turns = [0 for p in player_program_list]
+        self.loss_order = []  # list of players as they lose
+        self.issue_logs = [None for _ in player_program_list]
+        self.warnings = [[] for _ in player_program_list]
+        self.sum_times = [0 for _ in player_program_list]
+        self.max_times = [0 for _ in player_program_list]
+        self.player_turns = [0 for _ in player_program_list]
 
     def kill_player(self, player):
+        """
+        Kill the player's process and record loss.
+        :param int player:
+        :return:
+        """
         # Close the process and remove from process list
         self.player_processes[player].kill()
         self.player_processes[player] = None
@@ -154,17 +90,11 @@ class Match():
             for line in self.game.init_inputs(self.current_player):
                 print(line, file=current_player_stdin)
 
-            # # TODO: BEGIN Game.init_inputs(player)
-            # # Specific to WonderWomen
-            # print(self.size, file=current_player_stdin)
-            # print(self.units_per_player, file=current_player_stdin)
-            # # TODO: END Game.init_inputs(player)
-
-            return time.perf_counter(), False # no errors
+            return time.perf_counter(), False  # no errors
 
         except BrokenPipeError:
             print("Broken Pipe Error")
-            return time.perf_counter(), True # errors (Program likely crashed)
+            return time.perf_counter(), True  # errors (Program likely crashed)
 
     def pregame(self):
         print("==========================")
@@ -179,105 +109,93 @@ class Match():
             # Won't bother with the input flag now.  We will wait for it to crash on the first turn
 
     def is_active(self):
-        # TODO: get rid of this Match.is_active  Replace with next line
+        """Check if the game is still active."""
+
         return self.game.is_active()
 
-        # # TODO: START Game.is_active()
-        # # Special to Wonder Women
-        #
-        # return any(self.board_state.active_players)
-        # # TODO: END Game.is_active()
-
     def send_inputs_to_player(self):
+        """
+        Send information to the player processes at the start of the turn.
+
+        :return: time that the input was sent (needed to measure response time)
+        :return: a flag representing if there was a Broken Pipe Error
+                 (which likely means the processes crashed)
+        """
+
         try:
             current_player_stdin = self.player_processes[self.current_player].stdin
 
             for line in self.game.turn_inputs(self.current_player):
                 print(line, file=current_player_stdin)
 
-            # # TODO: START Game.turn_inputs(player)
-            # # Specific to WonderWomen
-            #
-            # print(self.board_state.turn_input(), file=current_player_stdin)
-            # # TODO: END Game.turn_inputs(player)
-
-            return time.perf_counter(), False # no errors
+            return time.perf_counter(), False  # no errors
 
         except BrokenPipeError:
             print("Broken Pipe Error")
-            return time.perf_counter(), True # errors (Program likely crashed)
+            return time.perf_counter(), True  # errors (Program likely crashed)
 
-    def read_player_streams(self, timeout = 0.1, expected_stdout_size = 1):
+    def read_player_streams(self, timeout=0.1, expected_stdout_size=1):
+        """
+        Get the actions from the player processes stdin (and stuff from stderr)
+
+        :param timeout:
+        :param expected_stdout_size:
+        :return: time that the output was collected
+        :return: stdout stream
+        :return: stderr stream
+        """
+
         p = self.player_processes[self.current_player]
 
         # read from stdout first since that means they are done with their turn
-        stdout_stream = list(p.read_stdout(timeout = timeout))
+        stdout_stream = list(p.read_stdout(timeout=timeout))
         if len(stdout_stream) < expected_stdout_size:
-            stdout_stream += list(p.read_stdout(timeout = 0.01))
+            stdout_stream += list(p.read_stdout(timeout=0.01))
         output_time = time.perf_counter()
         # read stderr next with no timeout since it should all be put into
         # the stream by now
-        stderr_stream = list(p.read_stderr(timeout = 0.01))
+        stderr_stream = list(p.read_stderr(timeout=0.01))
 
         return output_time, stdout_stream, stderr_stream
 
     def validate_player_output(self, stdout_stream):
+        """
+        Determine if player output was good.
+
+        :param stdout_stream: The stdout steam collected form the player
+        :return: action_str, message, issue_flag
+        """
         return self.game.validate_output(stdout_stream)
 
-        # # TODO: BEGIN
-        # issue_flag = False # used to flag undesired behavior
-        # message = ""
-        # action_str = None
-        #
-        # # Much of this method is specific to Wonder Women
-        # if not stdout_stream:
-        #     message += "did not provide any output. (CRASHED?)"
-        #     issue_flag = True
-        #
-        # else:
-        #     raw_move = stdout_stream[0].rstrip()
-        #     move = raw_move.split()
-        #     if not move:
-        #         message += "played " + raw_move + " which is not a valid move."
-        #         issue_flag = True
-        #     elif move[0] not in MOVES:
-        #         message += "played " + raw_move + " which is not a valid move."
-        #         issue_flag = True
-        #     elif move[0] == "ACCEPT-DEFEAT":
-        #         action_str = "ACCEPT-DEFEAT"
-        #     else:
-        #         action_str = " ".join(move[:4])
-        #         if action_str not in [str(a) for a in self.board_state.legal_actions]:
-        #             message += "played " + raw_move + " which is not in list of legal moves."
-        #             issue_flag = True
-        #             action_str = None
-        #
-        # return action_str, message, issue_flag
-        # TODO: END
-
     def process_players_errors(self, stderr_stream):
-        warning_set = set() # A set to avoid duplicates
+        """
+        Process any errors from the players.
+
+        I particular, the stderr output can include debugging code, so I used
+        the Game.WARNINGS list to notes special errors that I want to print.
+
+        :param stderr_stream: The error stream from the player process.
+        """
+
+        warning_set = set()  # A set to avoid duplicates
         for line in stderr_stream:
             line = line.rstrip()
-            if line and (line in WARNINGS or line.split()[0] in WARNINGS):
+            if line and (line in Game.WARNINGS or line.split()[0] in Game.WARNINGS):
                 warning_set.add((self.turn, line))
         self.warnings[self.current_player].extend(warning_set)
 
     def process_players_output(self, action_str):
-        # TODO: get rid of this method (replace with next line)
-        return self.game.process_output(self.current_player, action_str)
+        """
+        Process the actions printed by the player.
 
-        # # TODO: BEGIN Game.process_output(action_str)
-        # # This method is specific to Wonder Women
-        # self.board_state = self.board_state.next_board_state(action_str)
-        # if self.turn == 400:
-        #     # Deactivate remaining players
-        #     self.board_state.active_players = [False, False]
-        # # TODO: END Game.process_output(action_str)
+        :param action_str: The stream of actions printed by the player.
+        """
+
+        return self.game.process_output(self.current_player, action_str)
 
     def record_times(self, input_time, output_time):
         player = self.current_player
-        if self.player_turns[player]: # skip first turn
+        if self.player_turns[player]:  # skip first turn
             turn_time = output_time - input_time
             self.sum_times[player] += turn_time
             if self.max_times[player] < turn_time:
@@ -286,16 +204,25 @@ class Match():
         self.player_turns[player] += 1
 
     def print_board(self):
-        # TODO: get rid of this method (replace with next line)
-        self.game.print_board()
+        """
+        Print the game board.  (Used with show_map attribute.)
+        """
 
-        # TODO: BEGIN Game.print_board()
-        # specific to Wonder Women
-
-        print("Print board not implemented yet")
-        # TODO: END Game.print_board()
+        self.game.print_game()
 
     def print_turn_data(self, stdout_stream, stderr_stream, message, issue_flag, input_time, output_time):
+        """
+        Print summary information about the turn.
+
+        :param stdout_stream:
+        :param stderr_stream:
+        :param str message:
+        :param bool issue_flag:
+        :param input_time:
+        :param output_time:
+        :return:
+        """
+
         player_name = self.player_program_list[self.current_player]
         print("--------------------------")
         print("Turn", self.turn, "(Player {})".format(self.current_player), player_name)
@@ -309,11 +236,16 @@ class Match():
         print("Game Information:")
         print(">", player_name, message)
         print("Turn time:", output_time - input_time, "sec")
-        if self.show_map: self.print_board()  # not implemented yet
+        if self.show_map:
+            self.print_board()
 
     def print_error_report(self, player):
-        turn, stdout_stream, stderr_stream, \
-              message, input_flag, output_flag = self.issue_logs[player]
+        """
+        Print an error report (for when the process crashes).
+        :param int player: The player number
+        """
+
+        turn, stdout_stream, stderr_stream, message, input_flag, output_flag = self.issue_logs[player]
         player_name = self.player_program_list[player]
         print("    Error on turn", self.turn)
 
@@ -328,7 +260,9 @@ class Match():
 
     def one_turn(self):
         """
-        Perform one turn in the game (for each player) from sending input to reading the streams
+        Perform one turn in the game (for each player).
+
+        Send info to process, read info from process, validate and process moves
         """
 
         #
@@ -342,19 +276,17 @@ class Match():
         # Send inputs and read outputs
         #
         self.current_player = self.game.current_player()
-        # TODO: remove commented out text:
-        #self.current_player = self.board_state.current_player_id
 
         input_time, input_flag = self.send_inputs_to_player()
-        output_time, stdout_stream, stderr_stream = self.read_player_streams(timeout = 2, expected_stdout_size = 1)
+        output_time, stdout_stream, stderr_stream = self.read_player_streams(timeout=2, expected_stdout_size=1)
         moves, message, output_flag = self.validate_player_output(stdout_stream)
-        warnings = self.process_players_errors(stderr_stream)
+        self.process_players_errors(stderr_stream)
         self.record_times(input_time, output_time)
         if input_flag or output_flag:
             self.kill_player(self.current_player)
             self.issue_logs[self.current_player] = (self.turn, stdout_stream,
-                                                     stderr_stream, message,
-                                                     input_flag, output_flag)
+                                                    stderr_stream, message,
+                                                    input_flag, output_flag)
         #
         # Process outputs
         #
@@ -365,18 +297,18 @@ class Match():
             self.print_turn_data(stdout_stream, stderr_stream, message, output_flag, input_time, output_time)
 
     def remaining_players_in_order(self):
-        # TODO: Eventually remove this, handle ties and deactivated players better
-
-        # ties are (not so) rare, so I can worry about that later
-
-        # TODO: BEGIN
-        #active_players = [i for i in range(self.number_of_starting_players) if self.player_processes[i]]
-        #active_players.sort(key=lambda i: self.board_state.scores[i^self.board_state.current_player_id])
-        # TODO: END
+        """
+        Returns a list of the remaining players in order of score to determine
+        winner
+        """
 
         return sorted(range(self.number_of_starting_players), key=lambda p: self.game.score_game()[p])
 
     def end_of_game(self):
+        """
+        Stuff to handle at the end of the game like recording the winners and
+        killing all the player processes.
+        """
 
         # Kill remaining players
         for i in self.remaining_players_in_order():
@@ -391,14 +323,13 @@ class Match():
                 ave_time = 0.0
             max_time = self.max_times[player]
             print(place + 1, ":",
-                "(Player {})".format(player),
-                self.padded_names[player],
-                "   [ave: {:.5f} sec, max: {:.5f} sec]".format(ave_time, max_time))
+                  "(Player {})".format(player),
+                  self.padded_names[player],
+                  "   [ave: {:.5f} sec, max: {:.5f} sec]".format(ave_time, max_time))
             if self.issue_logs[player]:
                 self.print_error_report(player)
             if self.warnings[player]:
                 for turn, message in self.warnings[player]:
                     print("    Warning on turn", turn, ":", message)
-
 
         print("Total time:", time.perf_counter() - self.total_time, "sec")
