@@ -3,12 +3,23 @@ import time
 
 from match import Match
 
-####################
-# Tournament class #
-####################
-
 class Tournament():
+    """
+    Manages a tournament of multiple games.
+    """
     def __init__(self, number_of_games, program_names, game_arity, time_limits, verbose, show_map):
+        """
+        Initialize
+
+        :param int number_of_games: Number of games in the tournament
+        :param program_names: List of python scripts to run
+        :param int game_arity: Maximum number of players per match
+        :param bool time_limits: Use time limits
+        :param bool verbose: Print information about every move
+        :param bool show_map: Print the game board
+        :return:
+        """
+
         self.number_of_games = number_of_games
         self.program_names = program_names
         self.num_bots = len(self.program_names)

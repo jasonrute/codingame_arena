@@ -1,12 +1,9 @@
 import time
-import numpy as np
 
 from process import PlayerProcess
 from game import Game
 # TODO: Handle these
 
-from game.ww import BoardState
-from game.ww import MOVES
 from game.ww import WARNINGS
 
 
