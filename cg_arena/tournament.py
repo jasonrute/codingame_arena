@@ -59,7 +59,7 @@ class Tournament:
         if self.game_arity:
             game_arity = self.game_arity
         else:
-            game_arity = min(2, Game.MIN_PLAYERS)  # this is just a two player game
+            game_arity = 2  # this is just a two player game
 
         num_bots = self.num_bots
         player_order = None
