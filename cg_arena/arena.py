@@ -61,7 +61,6 @@ class Arena:
         self.config_str = None
         self.player_list = []
 
-
         try:
             opts, args = getopt.gnu_getopt(argv[1:], "tvmn:s:d:234", [])
         except getopt.GetoptError:
@@ -92,16 +91,16 @@ class Arena:
                 self.game_arity = n
             elif opt == '-n':  # Set number of games
                 self.number_of_games = int(arg)
-            elif opt == '-s': # Play a single game with a particular given
-                              # configuration.  Some other arguments are ignored.
+            elif opt == '-s':   # Play a single game with a particular given
+                                # configuration.  Some other arguments are ignored.
                 if self.double_game:
                     print("Can't play a single and a double game.")
                     sys.exit(2)
                 self.single_game = True
                 self.config_str = arg
-            elif opt == '-d':  # Play a double game with a particular given .
-                               # configuration.  It should be called instead of
-                               # -s.
+            elif opt == '-d':   # Play a double game with a particular given .
+                                # configuration.  It should be called instead of
+                                # -s.
                 if self.single_game:
                     print("Can't play a single and a double game.")
                     sys.exit(2)
@@ -131,6 +130,7 @@ class Arena:
     def play_single_game(self):
         """Play a single verbose match."""
 
+        match = None
         try:
             # Initialization
             match = Match(0, self.config_str, self.player_list, self.time_limits, self.verbose, self.show_map)
@@ -148,9 +148,10 @@ class Arena:
             raise
         finally:
             # Kill all subprocesses even if a crash
-            for p in match.player_processes:
-                if p:
-                    p.kill()
+            if match is not None:
+                for p in match.player_processes:
+                    if p:
+                        p.kill()
 
     def play_double_game(self):
         """Play a verbose two-player match in two columns"""
@@ -160,6 +161,8 @@ class Arena:
         for p in self.player_list:
             reverse_player_list.append(player_names[1] if p == player_names[0]
                                        else player_names[0])
+        match0 = None
+        match1 = None
         try:
             # Initialization (don't pass show map)
             match0 = Match(0, self.config_str, self.player_list, self.time_limits, self.verbose, False)
@@ -215,7 +218,6 @@ class Arena:
                     stream0.close()
                     stream1.close()
 
-
             # Handle end of game details
             stream0 = io.StringIO()
             sys.stdout = stream0  # capture stdout to a stream
@@ -235,19 +237,21 @@ class Arena:
             raise
         finally:
             # Kill all subprocesses even if a crash
-            for p in match0.player_processes:
-                if p:
-                    p.kill()
-            for p in match1.player_processes:
-                if p:
-                    p.kill()
+            if match0 is not None:
+                for p in match0.player_processes:
+                    if p:
+                        p.kill()
+
+            if match1 is not None:
+                for p in match1.player_processes:
+                    if p:
+                        p.kill()
 
     def play_tournament(self):
         """Play a tournament with multiple matches."""
 
-        t = Tournament(self.number_of_games, self.player_list, self.game_arity, self.time_limits, self.verbose, self.show_map)
+        t = Tournament(self.number_of_games, self.player_list,
+                       self.game_arity, self.time_limits,
+                       self.verbose, self.show_map)
         t.play_all_games()
         t.print_win_data()
-
-
-
