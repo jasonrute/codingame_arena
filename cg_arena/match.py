@@ -4,8 +4,6 @@ from process import PlayerProcess
 from game import Game
 
 
-
-
 class Match:
     """
     Stores the current state of the match including managing the player processes.

@@ -4,7 +4,8 @@ import time
 from match import Match
 from game import Game
 
-class Tournament():
+
+class Tournament:
     """
     Manages a tournament of multiple games.
     """
@@ -31,15 +32,15 @@ class Tournament():
 
         self.results = []
         self.player_lists = []
-        self.wins = {p:0 for p in program_names}
-        self.placements = {(p,a,i):0 for p in program_names for a in (2,3,4) for i in range(a)}
-        self.totals_by_arity = {a:0 for a in (2,3,4)}
+        self.wins = {p: 0 for p in program_names}
+        self.placements = {(p, a, i): 0 for p in program_names for a in (2, 3, 4) for i in range(a)}
+        self.totals_by_arity = {a: 0 for a in (2, 3, 4)}
         self.diff_results = []
-        self.diff_totals_by_arity = {a:0 for a in (2,3,4)}
-        self.diff_wins = {p:0 for p in program_names}
-        self.diff_placements = {(p,a,i):0 for p in program_names for a in (2,3,4) for i in range(a)}
-        self.games_with_errors = {p:[] for p in program_names}
-        self.games_with_warnings = {p:[] for p in program_names}
+        self.diff_totals_by_arity = {a: 0 for a in (2, 3, 4)}
+        self.diff_wins = {p: 0 for p in program_names}
+        self.diff_placements = {(p, a, i): 0 for p in program_names for a in (2, 3, 4) for i in range(a)}
+        self.games_with_errors = {p: [] for p in program_names}
+        self.games_with_warnings = {p: [] for p in program_names}
         self.games_played = 0
         self.games_to_look_at = []
 
@@ -64,7 +65,7 @@ class Tournament():
         player_order = None
 
         # get random configuration so that not all one player
-        while player_order == None or all(i==player_order[0] for i in player_order):
+        while player_order is None or all(i == player_order[0] for i in player_order):
             player_order = [random.randrange(num_bots) for _ in range(game_arity)]
 
         # generate configuration string
@@ -76,10 +77,17 @@ class Tournament():
             player_list = [self.program_names[(j+i) % num_bots] for j in player_order]
             random_configs.append((player_list, config_str))
 
-
         return random_configs
 
     def play_game(self, id_number, player_list, config_str):
+        """
+        Plays the match from beginning to end, recording the results.
+
+        :param id_number:
+        :param player_list:
+        :param config_str:
+        """
+        match = None
         try:
             # Initialization
             match = Match(id_number, config_str, player_list, self.time_limits, self.verbose, self.show_map)
@@ -97,8 +105,10 @@ class Tournament():
             raise
         finally:
             # Kill all subprocesses even if a crash
-            for p in match.player_processes:
-                if p: p.kill()
+            if match is not None:
+                for p in match.player_processes:
+                    if p:
+                        p.kill()
 
         results = tuple(reversed(match.loss_order))
         arity = len(player_list)
@@ -119,6 +129,9 @@ class Tournament():
                 self.games_with_warnings[player_name].append(match.id_number)
 
     def play_all_games(self):
+        """
+        Play all the matches.
+        """
         random_configs = []
 
         for i in range(self.number_of_games):
@@ -141,12 +154,14 @@ class Tournament():
                         self.diff_results.append(results)
                         self.diff_totals_by_arity[arity] += 1
                         self.diff_wins[player_list[results[0]]] += 1
-                        for place, i in enumerate(results):
-                            player_name = player_list[i]
+                        for place, j in enumerate(results):
+                            player_name = player_list[j]
                             self.diff_placements[player_name, arity, place] += 1
 
-
     def print_win_data(self):
+        """
+        Print the results.
+        """
         print("==========================")
         print("Tournament Results {}/{} games:".format(self.games_played, self.number_of_games))
         for name in self.program_names:
@@ -166,7 +181,8 @@ class Tournament():
 
             for arity in (2, 3, 4):
                 if self.totals_by_arity[arity]:
-                    stats = ["{}. {:3} [{:3}] ".format(i+1, self.placements[name, arity, i], self.diff_placements[name, arity, i]) for i in range(arity)]
+                    stats = ["{}. {:3} [{:3}] ".format(i+1, self.placements[name, arity, i],
+                                                       self.diff_placements[name, arity, i]) for i in range(arity)]
                     print("   ", arity, "player games: ", *stats)
         if self.games_to_look_at:
             print("Games where results differ:", *self.games_to_look_at)
