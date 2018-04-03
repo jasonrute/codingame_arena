@@ -2,6 +2,7 @@ import random
 import time
 
 from match import Match
+from game import Game
 
 class Tournament():
     """
@@ -44,28 +45,30 @@ class Tournament():
 
         self.start_time = time.perf_counter()
 
+        self.player_order_rng = random.Random(0)
+        self.config_str_rng = random.Random(0)
+
     def generate_random_configurations(self):
+        """
+        Generators a tuple specifying which players are playing in what order.
+
+        :return: a tuple with the player
+        """
+
         if self.game_arity:
             game_arity = self.game_arity
         else:
-            game_arity = 2 # this is just a two player game
+            game_arity = min(2, Game.MIN_PLAYERS)  # this is just a two player game
 
         num_bots = self.num_bots
         player_order = None
-        # get random configuration so that not all one playuer
+
+        # get random configuration so that not all one player
         while player_order == None or all(i==player_order[0] for i in player_order):
             player_order = [random.randrange(num_bots) for _ in range(game_arity)]
 
-        # Find random starting configuration and encode using CG format
-        config_str = ""
-
-        # This is specific to Wonder Women
-
-        map_index = random.randrange(3)
-        seed = random.randrange(2**32)
-        config_str = "mapIndex={};seed={}".format(map_index, seed)
-        random_configs = [(player_order, config_str)]
-
+        # generate configuration string
+        config_str = Game.random_configuration(self.config_str_rng)
 
         # rotate players to give some semplance of symmetry (esp in 2 bot case)
         random_configs = []
@@ -78,7 +81,7 @@ class Tournament():
 
     def play_game(self, id_number, player_list, config_str):
         try:
-            # Initiallization
+            # Initialization
             match = Match(id_number, config_str, player_list, self.time_limits, self.verbose, self.show_map)
 
             match.pregame()

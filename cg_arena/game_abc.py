@@ -1,6 +1,23 @@
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 
-class GameABC(ABC):
+class GameABC(metaclass=ABCMeta):
+    @property
+    @staticmethod
+    @abstractmethod
+    def MIN_PLAYERS():
+        ...
+
+    @property
+    @staticmethod
+    @abstractmethod
+    def MAX_PLAYERS():
+        ...
+
+    @staticmethod
+    @abstractmethod
+    def random_configuration(random_generator):
+        ...
+
     @abstractmethod
     def __init__(self, config_str):
         ...
