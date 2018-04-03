@@ -160,7 +160,7 @@ class Match:
         """
         Determine if player output was good.
 
-        :param stdout_stream: The stdout steam collected form the player
+        :param stdout_stream: The stdout steam collected from the player
         :return: action_str, message, issue_flag
         """
         return self.game.validate_output(stdout_stream)
@@ -189,7 +189,7 @@ class Match:
         :param action_str: The stream of actions printed by the player.
         """
 
-        return self.game.process_output(self.current_player, action_str)
+        self.game.process_output(self.current_player, action_str)
 
     def record_times(self, input_time, output_time):
         player = self.current_player
